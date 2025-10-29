@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://b4culr4h4qaev"]
+
+[ext_resource type="Script" uid="uid://b1uyspq202au5" path="res://ChatClient.gd" id="1_4ussg"]
+
+[node name="ChatClient" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_4ussg")
+
+[node name="ChatLog" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 299.0
+offset_top = 294.0
+offset_right = 958.0
+offset_bottom = 615.0
+
+[node name="MessageInput" type="LineEdit" parent="."]
+layout_mode = 0
+offset_left = 322.0
+offset_top = 100.0
+offset_right = 717.0
+offset_bottom = 183.0
+
+[node name="SendButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 781.0
+offset_top = 126.0
+offset_right = 914.0
+offset_bottom = 184.0

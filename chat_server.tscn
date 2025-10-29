@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dacw65rjc4mnl"]
+
+[ext_resource type="Script" uid="uid://cte8lbit8so7y" path="res://ChatServer.gd" id="1_rpeak"]
+
+[node name="ChatServer" type="Node3D"]
+script = ExtResource("1_rpeak")
