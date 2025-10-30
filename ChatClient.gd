@@ -8,7 +8,7 @@ var client := WebSocketPeer.new()
 
 func _ready():
 	send_btn.pressed.connect(_on_send_pressed)
-	connect_to_server("ws://127.0.0.1:9080")
+	connect_to_server("ws://127.0.0.1:2345")
 
 func connect_to_server(url: String):
 	var err = client.connect_to_url(url)

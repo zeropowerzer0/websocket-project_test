@@ -1,7 +1,7 @@
 extends Node
 
 # The port we will listen to.
-const PORT = 9080
+const PORT = 2345
 
 # Our TCP Server instance.
 var _tcp_server = TCPServer.new()
@@ -30,28 +30,32 @@ func _process(_delta):
 		ws.accept_stream(_tcp_server.take_connection())
 		_peers[last_peer_id] = ws
 
-	# Iterate over all connected peers using "keys()" so we can erase in the loop
+	# Iterate over all connected peers
 	for peer_id in _peers.keys():
 		var peer = _peers[peer_id]
-
 		peer.poll()
 
-		var peer_state = peer.get_ready_state()
-		if peer_state == WebSocketPeer.STATE_OPEN:
-			while peer.get_available_packet_count():
-				var packet = peer.get_packet()
-				if peer.was_string_packet():
-					var packet_text = packet.get_string_from_utf8()
-					print("< Got text data from peer %d: %s ... echoing" % [peer_id, packet_text])
-					# Echo the packet back.
-					peer.send_text(packet_text)
-				else:
-					print("< Got binary data from peer %d: %d ... echoing" % [peer_id, packet.size()])
-					# Echo the packet back.
-					peer.send(packet)
-		elif peer_state == WebSocketPeer.STATE_CLOSED:
-			# Remove the disconnected peer.
-			_peers.erase(peer_id)
-			var code = peer.get_close_code()
-			var reason = peer.get_close_reason()
-			print("- Peer %s closed with code: %d, reason %s. Clean: %s" % [peer_id, code, reason, code != -1])
+		match peer.get_ready_state():
+			WebSocketPeer.STATE_OPEN:
+				while peer.get_available_packet_count() > 0:
+					var packet = peer.get_packet()
+					if peer.was_string_packet():
+						var msg = packet.get_string_from_utf8()
+						print("< Peer %d: %s" % [peer_id, msg])
+
+						# Broadcast message to all connected peers
+						for other_id in _peers.keys():
+							var other_peer = _peers[other_id]
+							if other_peer.get_ready_state() == WebSocketPeer.STATE_OPEN:
+								# Optionally skip the sender:
+								if other_id != peer_id:
+									other_peer.send_text("Peer %d: %s" % [peer_id, msg])
+					else:
+						print("< Peer %d sent binary data (%d bytes)" % [peer_id, packet.size()])
+						for other_peer in _peers.values():
+							if other_peer.get_ready_state() == WebSocketPeer.STATE_OPEN:
+								other_peer.send(packet)
+
+			WebSocketPeer.STATE_CLOSED:
+				_peers.erase(peer_id)
+				print("- Peer %d disconnected" % peer_id)
